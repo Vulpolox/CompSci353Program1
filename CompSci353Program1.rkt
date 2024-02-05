@@ -60,3 +60,8 @@
 (define (calculate-strike score-list)
   "ToDo"
   )
+
+; function for calculating open frame
+(define (calculate-open score-list)
+  (+ (first score-list) (second score-list))
+  )
