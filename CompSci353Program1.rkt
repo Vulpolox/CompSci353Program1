@@ -12,7 +12,7 @@
     )
   )
 
-; function for determining both if something is a char and is equal to another char
+; function for determining if something is both a char and is equal to another char
 (define (is-char-equal a b)
   (if (not (and (char? a) (char? b))) ; if one or both are not characters
       #f                              ; then return false
@@ -41,6 +41,8 @@
      "open"]
     [(is-char-equal (first score-list) #\X)
      "strike"]
+    [else
+     "invalid frame type; make sure characters are used instead of symbols"]
   )
   )
 
@@ -51,14 +53,25 @@
      20]
     [(string=? (get-frame-type (pop-front score-list 2)) "empty")  ; something went wrong
      -10000000]
-    [else                                                     ; add 10 to the first roll of the next frame and return the sum
+    [else                                                          ; add 10 to the first roll of the next frame and return the sum
      (+ (first (pop-front score-list 2)) 10)] 
   )
   )
 
 ; function for calculating strike
 (define (calculate-strike score-list)
-  "ToDo"
+  (cond
+    [(and
+     (string=? (get-frame-type (pop-front score-list 1)) "strike")                ; player's next two rolls are both strikes
+     (string=? (get-frame-type (pop-front score-list 2)) "strike"))
+     30]
+    [(string=? (get-frame-type (pop-front score-list 1)) "spare")                 ; player's next two rolls result in a spare
+     20]
+    [(string=? (get-frame-type (pop-front score-list 1)) "open")                  ; player's next two rolls result in an open frame
+     (+ (first (pop-front score-list 1))
+        (second (pop-front score-list 2)))
+     10]
+  )
   )
 
 ; function for calculating open frame
