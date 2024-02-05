@@ -5,8 +5,28 @@
 (define (calculate-score score-list)
   (cond
     [(string=? (get-frame-type score-list) "spare")
-     (+ (calculate-spare score-list) (calculate-score (drop 2 score-list)))] ; calculates score from spares
+     (+ (calculate-spare score-list) (calculate-score (pop-front score-list 2)))] ; calculates score from spares
+    [(string=? (get-frame-type score-list) "open")
+     ]
+     
+    )
+  )
 
+; function for determining both if something is a char and is equal to another char
+(define (is-char-equal a b)
+  (if (not (and (char? a) (char? b))) ; if one or both are not characters
+      #f                              ; then return false
+      (char=? a b)                    ; else return the result of char=? of a and b
+      )
+  )
+
+; function for removing n elements from front of list; if list has less than n elements return empty list
+(define (pop-front my-list n)
+  (if (< (length my-list) n) ; if there are less than n elements in list
+      empty                  ; return an empty list
+      (drop my-list n)       ; else remove the first n elements from the list and return that
+      )
+  )
 
 ; function for determining frame type (spare, strike, open frame)
 (define (get-frame-type score-list)
@@ -14,19 +34,29 @@
     [(empty? score-list)
      "empty"]
     [(and (number? (first score-list))
-          (char=? (second score-list) #\/))
+          (is-char-equal (second score-list) #\/))
      "spare"]
     [(and (number? (first score-list))
           (number? (second score-list)))
      "open"]
-    [(char=? (first score-list) #\X)
+    [(is-char-equal (first score-list) #\X)
      "strike"]
+  )
   )
 
 ; function for calculating spare
-  (define (calculate-spare score-list)
-    (cond
-      [(string=? (get-frame-type (drop 2 score-list)) "strike")
-       20]
-      [else (+ (first (drop 2 score-list)) 10)]
-      )
+(define (calculate-spare score-list)
+  (cond
+    [(string=? (get-frame-type (pop-front score-list 2)) "strike") ; if their next roll is a strike, return 20
+     20]
+    [(string=? (get-frame-type (pop-front score-list 2)) "empty")  ; something went wrong
+     -10000000]
+    [else                                                     ; add 10 to the first roll of the next frame and return the sum
+     (+ (first (pop-front score-list 2)) 10)] 
+  )
+  )
+
+; function for calculating strike
+(define (calculate-strike score-list)
+  "ToDo"
+  )
