@@ -2,16 +2,29 @@
 
 ; function for calculating the score of a bowling game
 ; score-list is a list of tokens containing integers and chars "X" and "/"
-(define (calculate-score score-list)
+(define (calculate-score score-list [prev-frame "none"])
   (cond
-    [(string=? (get-frame-type score-list) "spare")
+    [(string=? (get-frame-type score-list prev-frame) "spare")          ; if the frame at the front of the list is a spare
      (+ (calculate-spare score-list)
-        (calculate-score (pop-front score-list 2)))] ; calculates score from spares
-    [(string=? (get-frame-type score-list) "open")
-     ]
-     
+        (if (not (final-frame score-list prev-frame))
+            (calculate-score (pop-front score-list 2) "spare")
+            0))]
+    [(string=? (get-frame-type score-list prev-frame) "open")           ; if the frame at the front of the list is open
+     (+ (calculate-open score-list)
+        (if (not (final-frame score-list prev-frame))
+            (calculate-score (pop-front score-list 2) "open")
+            0))]
+    [(string=? (get-frame-type score-list prev-frame) "strike")         ; if the frame at the front of the list is a strike
+     (+ (calculate-strike score-list)
+        (if (not (final-frame score-list prev-frame))
+            (calculate-score (pop-front score-list 1) "strike")
+            0))]
     )
   )
+
+; function for determining if it is the 10th frame
+(define (final-frame? score-list prev-frame)
+  "ToDo")
 
 ; function for determining if something is both a char and is equal to another char
 (define (is-char-equal a b)
@@ -30,18 +43,16 @@
   )
 
 ; function for determining frame type (spare, strike, open frame)
-(define (get-frame-type score-list)
+(define (get-frame-type score-list [prev-frame "none"])
   (cond
-    [(empty? score-list)
-     "empty"]
     [(and (number? (first score-list))
           (is-char-equal (second score-list) #\/))
-     "spare"]
+     "spare"]                                      ; frame at the front of the list is spare
     [(and (number? (first score-list))
           (number? (second score-list)))
-     "open"]
+     "open"]                                       ; frame at the front of the list is open
     [(is-char-equal (first score-list) #\X)
-     "strike"]
+     "strike"]                                     ; frame at the front of the list is strike
     [else
      "invalid frame type; make sure characters are used instead of symbols"]
   )
@@ -66,12 +77,19 @@
      (string=? (get-frame-type (pop-front score-list 1)) "strike")                ; player's next two rolls are both strikes
      (string=? (get-frame-type (pop-front score-list 2)) "strike"))
      30]
+    [(and
+      (string=? (get-frame-type (pop-front score-list 1)) "strike")               ; player's next two rolls are a strike and an open frame respectively
+      (string=? (get-frame-type (pop-front score-list 2)) "open"))
+     (+
+      (first (pop-front score-list 2))
+      20)]
     [(string=? (get-frame-type (pop-front score-list 1)) "spare")                 ; player's next two rolls result in a spare
      20]
     [(string=? (get-frame-type (pop-front score-list 1)) "open")                  ; player's next two rolls result in an open frame
-     (+ (first (pop-front score-list 1))
+     (+
+      (+ (first (pop-front score-list 1))
         (second (pop-front score-list 2)))
-     10]
+      10)]
   )
   )
 
