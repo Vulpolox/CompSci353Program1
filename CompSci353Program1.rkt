@@ -1,23 +1,24 @@
 #lang racket
+(require rackunit)
 
 ; function for calculating the score of a bowling game
 ; score-list is a list of tokens containing integers and chars "X" and "/"
-(define (calculate-score score-list [prev-frame "none"])
+(define (calculate-score score-list)
   (cond
-    [(string=? (get-frame-type score-list prev-frame) "spare")          ; if the frame at the front of the list is a spare
+    [(string=? (get-frame-type score-list) "spare")          ; if the frame at the front of the list is a spare
      (+ (calculate-spare score-list)
         (if (not (final-frame? score-list))
-            (calculate-score (pop-front score-list 2) "spare")
+            (calculate-score (pop-front score-list 2))
             0))]
-    [(string=? (get-frame-type score-list prev-frame) "open")           ; if the frame at the front of the list is open
+    [(string=? (get-frame-type score-list) "open")           ; if the frame at the front of the list is open
      (+ (calculate-open score-list)
         (if (not (final-frame? score-list))
-            (calculate-score (pop-front score-list 2) "open")
+            (calculate-score (pop-front score-list 2))
             0))]
-    [(string=? (get-frame-type score-list prev-frame) "strike")         ; if the frame at the front of the list is a strike
+    [(string=? (get-frame-type score-list) "strike")         ; if the frame at the front of the list is a strike
      (+ (calculate-strike score-list)
         (if (not (final-frame? score-list))
-            (calculate-score (pop-front score-list 1) "strike")
+            (calculate-score (pop-front score-list 1))
             0))]
     )
   )
@@ -57,7 +58,7 @@
   )
 
 ; function for determining frame type (spare, strike, open frame)
-(define (get-frame-type score-list [prev-frame "none"])
+(define (get-frame-type score-list)
   (cond
     [(is-char-equal (first score-list) #\X)        ; frame at the front of the list is strike
      "strike"]                                     
@@ -106,7 +107,8 @@
   (+ (first score-list)
      (second score-list)))
 
-;(calculate-score '(7 #\/ 5))                                             ; should be 15
-;(calculate-score '(#\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X))     ; should be 300
-;(calculate-score '(7 #\/ #\X 5 4 #\X #\X 7 #\/ 5 4 8 #\/ #\X 8 #\/ #\X)) ; should be 179
-;(calculate-score '(#\X #\X 7))                                           ; should be 27
+
+; unit testing
+(check-equal? (calculate-score '(7 #\/ 5)) 15)
+(check-equal? (calculate-score '(#\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X)) 300)
+(check-equal? (calculate-score '(7 #\/ #\X 5 4 #\X #\X 7 #\/ 5 4 8 #\/ #\X 8 #\/ #\X)) 179)
