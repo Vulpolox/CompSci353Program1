@@ -6,25 +6,39 @@
   (cond
     [(string=? (get-frame-type score-list prev-frame) "spare")          ; if the frame at the front of the list is a spare
      (+ (calculate-spare score-list)
-        (if (not (final-frame score-list prev-frame))
+        (if (not (final-frame? score-list prev-frame))
             (calculate-score (pop-front score-list 2) "spare")
             0))]
     [(string=? (get-frame-type score-list prev-frame) "open")           ; if the frame at the front of the list is open
      (+ (calculate-open score-list)
-        (if (not (final-frame score-list prev-frame))
+        (if (not (final-frame? score-list prev-frame))
             (calculate-score (pop-front score-list 2) "open")
             0))]
     [(string=? (get-frame-type score-list prev-frame) "strike")         ; if the frame at the front of the list is a strike
      (+ (calculate-strike score-list)
-        (if (not (final-frame score-list prev-frame))
+        (if (not (final-frame? score-list prev-frame))
             (calculate-score (pop-front score-list 1) "strike")
             0))]
     )
   )
 
 ; function for determining if it is the 10th frame
+; returns true if the frame at the beginning of score-list is the last one
 (define (final-frame? score-list prev-frame)
-  "ToDo")
+  (cond
+    [(and (string=? prev-frame "strike")         ; if previous frame was strike and removing 2 tokens results in empty list
+          (empty? (pop-front score-list 2)))
+     #t]
+    [(and (string=? prev-frame "spare")          ; if previous frame was spare and removing 1 token results in empty list
+          (empty? (pop-front score-list 1)))
+     #t]
+    [(empty? (pop-front score-list 2))           ; if previoius not strike/spare and removing 2 tokens results in empty list (i.e. last frame is open)
+     #t]
+    [else
+     #f]
+    )
+  )
+    
 
 ; function for determining if something is both a char and is equal to another char
 (define (is-char-equal a b)
@@ -87,13 +101,13 @@
      20]
     [(string=? (get-frame-type (pop-front score-list 1)) "open")                  ; player's next two rolls result in an open frame
      (+
-      (+ (first (pop-front score-list 1))
-        (second (pop-front score-list 2)))
+      (+ (second score-list)
+         (third score-list))
       10)]
   )
   )
 
 ; function for calculating open frame
 (define (calculate-open score-list)
-  (+ (first score-list) (second score-list))
-  )
+  (+ (first score-list)
+     (second score-list)))
