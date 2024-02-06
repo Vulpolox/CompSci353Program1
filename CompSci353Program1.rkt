@@ -61,8 +61,6 @@
   (cond
     [(is-char-equal (first score-list) #\X)        ; frame at the front of the list is strike
      "strike"]                                     
-    [(< (length score-list) 2)                     ; here to prevent errors
-     "extra-rolls"]
     [(and (number? (first score-list))
           (is-char-equal (second score-list) #\/))
      "spare"]                                      ; frame at the front of the list is spare
@@ -77,10 +75,8 @@
 ; function for calculating spare
 (define (calculate-spare score-list)
   (cond
-    [(string=? (get-frame-type (pop-front score-list 2)) "strike") ; next roll is a strike
+    [(is-char-equal (third score-list) #\X)                        ; next roll is a strike
      20]
-    [(string=? (get-frame-type (pop-front score-list 2)) "empty")  ; something went wrong
-     -10000000]
     [else                                                          ; add 10 to the first roll of the next frame and return the sum
      (+ (first (pop-front score-list 2)) 10)] 
   )
@@ -89,19 +85,15 @@
 ; function for calculating strike
 (define (calculate-strike score-list)
   (cond
-    [(and
-     (string=? (get-frame-type (pop-front score-list 1)) "strike")                ; player's next two rolls are both strikes
-     (string=? (get-frame-type (pop-front score-list 2)) "strike"))
+    [(and (is-char-equal (second score-list) #\X)                                ; player's next two rolls are strikes
+          (is-char-equal (third score-list) #\X))
      30]
-    [(and
-      (string=? (get-frame-type (pop-front score-list 1)) "strike")               ; player's next two rolls are a strike and an open frame respectively
-      (string=? (get-frame-type (pop-front score-list 2)) "open"))
-     (+
-      (first (pop-front score-list 2))
-      20)]
-    [(string=? (get-frame-type (pop-front score-list 1)) "spare")                 ; player's next two rolls result in a spare
+    [(and (is-char-equal (second score-list) #\X)                                ; player's next two rolls are a strike and an open frame respectively
+          (number? (third score-list)))
+     (+ 20 (third score-list))]
+    [(string=? (get-frame-type (pop-front score-list 1)) "spare")                ; player's next two rolls result in a spare
      20]
-    [(string=? (get-frame-type (pop-front score-list 1)) "open")                  ; player's next two rolls result in an open frame
+    [(string=? (get-frame-type (pop-front score-list 1)) "open")                 ; player's next two rolls result in an open frame
      (+
       (+ (second score-list)
          (third score-list))
@@ -114,5 +106,7 @@
   (+ (first score-list)
      (second score-list)))
 
-;(calculate-score '(7 #\/ 5))
-;(calculate-score '(#\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X))
+;(calculate-score '(7 #\/ 5))                                             ; should be 15
+;(calculate-score '(#\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X))     ; should be 300
+;(calculate-score '(7 #\/ #\X 5 4 #\X #\X 7 #\/ 5 4 8 #\/ #\X 8 #\/ #\X)) ; should be 179
+;(calculate-score '(#\X #\X 7))                                           ; should be 27
