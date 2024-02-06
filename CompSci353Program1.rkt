@@ -6,17 +6,17 @@
   (cond
     [(string=? (get-frame-type score-list prev-frame) "spare")          ; if the frame at the front of the list is a spare
      (+ (calculate-spare score-list)
-        (if (not (final-frame? score-list prev-frame))
+        (if (not (final-frame? score-list))
             (calculate-score (pop-front score-list 2) "spare")
             0))]
     [(string=? (get-frame-type score-list prev-frame) "open")           ; if the frame at the front of the list is open
      (+ (calculate-open score-list)
-        (if (not (final-frame? score-list prev-frame))
+        (if (not (final-frame? score-list))
             (calculate-score (pop-front score-list 2) "open")
             0))]
     [(string=? (get-frame-type score-list prev-frame) "strike")         ; if the frame at the front of the list is a strike
      (+ (calculate-strike score-list)
-        (if (not (final-frame? score-list prev-frame))
+        (if (not (final-frame? score-list))
             (calculate-score (pop-front score-list 1) "strike")
             0))]
     )
@@ -24,15 +24,15 @@
 
 ; function for determining if it is the 10th frame
 ; returns true if the frame at the beginning of score-list is the last one
-(define (final-frame? score-list prev-frame)
+(define (final-frame? score-list)
   (cond
-    [(and (string=? prev-frame "strike")         ; if previous frame was strike and removing 2 tokens results in empty list
-          (empty? (pop-front score-list 2)))
-     #t]
-    [(and (string=? prev-frame "spare")          ; if previous frame was spare and removing 1 token results in empty list
-          (empty? (pop-front score-list 1)))
-     #t]
-    [(empty? (pop-front score-list 2))           ; if previoius not strike/spare and removing 2 tokens results in empty list (i.e. last frame is open)
+    [(and (string=? (get-frame-type score-list) "strike")
+          (empty? (pop-front score-list 3))
+          #t)]
+    [(and (string=? (get-frame-type score-list) "spare")
+          (empty? (pop-front score-list 3))
+          #t)]
+    [(empty? (pop-front score-list 2))
      #t]
     [else
      #f]
@@ -59,14 +59,16 @@
 ; function for determining frame type (spare, strike, open frame)
 (define (get-frame-type score-list [prev-frame "none"])
   (cond
+    [(is-char-equal (first score-list) #\X)        ; frame at the front of the list is strike
+     "strike"]                                     
+    [(< (length score-list) 2)                     ; here to prevent errors
+     "extra-rolls"]
     [(and (number? (first score-list))
           (is-char-equal (second score-list) #\/))
      "spare"]                                      ; frame at the front of the list is spare
     [(and (number? (first score-list))
           (number? (second score-list)))
      "open"]                                       ; frame at the front of the list is open
-    [(is-char-equal (first score-list) #\X)
-     "strike"]                                     ; frame at the front of the list is strike
     [else
      "invalid frame type; make sure characters are used instead of symbols"]
   )
@@ -111,3 +113,6 @@
 (define (calculate-open score-list)
   (+ (first score-list)
      (second score-list)))
+
+;(calculate-score '(7 #\/ 5))
+;(calculate-score '(#\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X #\X))
