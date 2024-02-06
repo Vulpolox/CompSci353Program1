@@ -49,7 +49,7 @@
 ; function for calculating spare
 (define (calculate-spare score-list)
   (cond
-    [(string=? (get-frame-type (pop-front score-list 2)) "strike") ; if their next roll is a strike, return 20
+    [(string=? (get-frame-type (pop-front score-list 2)) "strike") ; next roll is a strike
      20]
     [(string=? (get-frame-type (pop-front score-list 2)) "empty")  ; something went wrong
      -10000000]
