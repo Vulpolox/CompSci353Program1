@@ -5,7 +5,8 @@
 (define (calculate-score score-list)
   (cond
     [(string=? (get-frame-type score-list) "spare")
-     (+ (calculate-spare score-list) (calculate-score (pop-front score-list 2)))] ; calculates score from spares
+     (+ (calculate-spare score-list)
+        (calculate-score (pop-front score-list 2)))] ; calculates score from spares
     [(string=? (get-frame-type score-list) "open")
      ]
      
