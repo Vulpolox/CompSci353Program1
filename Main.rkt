@@ -14,12 +14,27 @@
   "player"))
 
 ; pre  -- takes a list pertaining to a player
-; post -- splits the name and the score into separate lists
+; post -- returns a list containing the player name as a single string
+;         and a list of single strings representing said player's bowling game
 (define (player-score-split input-list)
-  (define player-name (list (first input-list)
-                            (second input-list)))
+  (define player-name (string-join (take input-list 2) " "))
   (define player-score (drop input-list 2))
   (list player-name player-score))
 
+; pre  -- takes a list of single character strings representing a bowling game
+; post -- converts each string in the list to a integer if numerical or a character
+;         otherwise and returns the updated list
+(define (type-cast-game input-list)
+  (define (str->char str)                            ; helper function for converting string to char
+    (string-ref str 0))
+  (define (char->int-if-num chr)                     ; helper function for converting char to int if numeric
+    (if (char-numeric? chr)
+        (- (char->integer chr) 48)
+        chr))
+  (define pure-char-list (map str->char input-list)) ; intermediary list that has strings converted to chars
+  (map char->int-if-num pure-char-list))
 
-  
+(define test (second data))
+(team-or-player? test)
+(player-score-split test)
+(calculate-score (type-cast-game (second (player-score-split test))))
