@@ -1,5 +1,6 @@
 #lang racket
 (require rackunit)
+(provide calculate-score)
 
 ; function for calculating the score of a bowling game
 ; score-list is a list of tokens containing integers and chars "X" and "/"
