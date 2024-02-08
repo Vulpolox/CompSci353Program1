@@ -35,29 +35,27 @@
   (define pure-char-list (map str->char input-list)) ; intermediary list that has strings converted to chars
   (map char->int-if-num pure-char-list))
 
-; pre  -- takes data from scores.txt
-; post -- hashes data into teams (keys) and lists of players (values) and returns map
-(define (hash-team->players data [out-hash (make-immutable-hash)] [current-team "null"])
+; pre  -- takes input data
+; post -- returns a list of lists where each sublist contains a player,
+;         their team, and the score from their game
+(define (get-clean-data data [current-team "none"] [superlist '()])
   (cond
     [(empty? data)
-     out-hash]
+     superlist]
     [(eq? (team-or-player? (first data))
           "team")
-     (hash-team->players (cdr data) out-hash (first data))]
+     (get-clean-data (cdr data) (first data) superlist)]
     [(eq? (team-or-player? (first data))
           "player")
-     (begin
-       (define new-hash (hash-set out-hash
-                                  current-team
-                                  (first (player-score-split (first data)))))
-       (hash-team->players (cdr data) new-hash current-team))]
+     (define player-name (first (player-score-split (first data))))
+     (define player-score (calculate-score (type-cast-game (second (player-score-split (first data))))))
+     (define updated-list (cons (list (first current-team) player-name player-score) superlist))
+     (get-clean-data (cdr data) current-team updated-list)]
     )
   )
-     
- (define team->players# (hash-team->players data))
-team->players#
-data
 
+(define clean-data (get-clean-data data))
+clean-data
 
 ;(define test (second data))
 ;(team-or-player? test)
