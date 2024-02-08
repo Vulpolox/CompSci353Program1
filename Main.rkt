@@ -210,9 +210,28 @@
 
 ; pre  -- takes a list of player names
 ; post -- returns a list containing all the players who have the top score
-
+(define (get-highest-scorer names-list [out-players '()] [high-score 0])
+  (define highest-score (if (eq? high-score 0)
+                            (apply max (map get-total-score
+                                            names-list))
+                            high-score))
+  (cond
+    [(empty? names-list)
+     out-players]
+    [(eq? highest-score (get-total-score (first names-list)))
+     (define new-high-scorer (first names-list))
+     (define updated-list (append out-players
+                                  (list new-high-scorer)))
+     (get-highest-scorer (cdr names-list) updated-list highest-score)]
+    [else
+     (get-highest-scorer (cdr names-list) out-players highest-score)]
+    )
+  )
 ;------------------OUTPUT-------------------------------------------------------------------------------------------------------
 
-(map get-total-score player-names)
+player-names
+(apply max(map get-total-score player-names))
+(get-highest-scorer player-names)
+(get-total-score (first (get-highest-scorer player-names)))
          
   
