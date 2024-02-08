@@ -14,6 +14,16 @@
   "team"
   "player"))
 
+; pre  -- takes a list
+; post -- returns a list containing the team names
+(define (get-team-names data)
+  (define (team? input-line)                     ; helper function to use with filter
+    (eq? "team" (team-or-player? input-line)))
+  (define raw-lines (map
+                     first
+                     (filter team? data)))
+  (set->list (list->set raw-lines)))
+
 ; pre  -- takes a list pertaining to a player
 ; post -- returns a list containing the player name as a single string
 ;         and a nested list of single strings representing said player's bowling game
@@ -64,15 +74,15 @@
                           "null; base case should be triggered"
                           (second current-entry)))
   (cond
-    [(empty? data)
+    [(empty? data)                                             ; base case--return the hash-map
      out-hash]
-    [(not (hash-has-key? out-hash current-key))
+    [(not (hash-has-key? out-hash current-key))                ; if the key doesn't exist in the hash-map
      (define updated-hash (hash-set
                            out-hash
                            current-key
                            (list (third current-entry))))
      (player->score# (cdr data) updated-hash)]
-    [else
+    [else                                                      ; if the key exists in the hash map
      (define updated-value (append
                             (hash-ref out-hash current-key)
                             (list (third current-entry))))
@@ -94,15 +104,15 @@
                           "null; base case should be triggered"
                           (first current-entry)))
   (cond
-    [(empty? data)
+    [(empty? data)                                                 ; base case--return hash-map
      out-hash]
-    [(not (hash-has-key? out-hash current-key))
+    [(not (hash-has-key? out-hash current-key))                    ; if the key doesn't exist in the hash-map
      (define updated-hash (hash-set
                            out-hash
                            current-key
                            (list (third current-entry))))
      (team->score# (cdr data) updated-hash)]
-    [else
+    [else                                                          ; if the key exists in the hash map
      (define updated-value (append
                             (hash-ref out-hash current-key)
                             (list (third current-entry))))
@@ -124,15 +134,15 @@
                           "null; base case should be triggered"
                           (first current-entry)))
   (cond
-    [(empty? data)
+    [(empty? data)                                                  ; base case--return hash-map
      out-hash]
-    [(not (hash-has-key? out-hash current-key))
+    [(not (hash-has-key? out-hash current-key))                     ; if the key doesn't exist in the hash-map
      (define updated-hash (hash-set
                            out-hash
                            current-key
                            (list (second current-entry))))
      (team->player# (cdr data) updated-hash)]
-    [else
+    [else                                                           ; if the key exists in the hash map 
      (define updated-value (append
                             (hash-ref out-hash current-key)
                             (list (second current-entry))))
@@ -143,19 +153,10 @@
      (team->player# (cdr data) updated-hash)]
     )
   )
-    
 
-(define clean-data (get-clean-data data))
-(define player2scores-map (player->score# clean-data))
-(define team2scores-map (team->score# clean-data))
-(define team2players-map (team->player# clean-data))
+(define clean-data (get-clean-data data))                ; data that is formatted nicely
+(define team-names (get-team-names data))                ; a list containing team names
+(define player2scores-map (player->score# clean-data))   ; a hash-map mapping players to a list of their 3 scores
+(define team2scores-map (team->score# clean-data))       ; a hash-map mapping teams to a list containing all scores from all games played by each one
+(define team2players-map (team->player# clean-data))     ; a hash-map mapping team names to a list players who belong to them
 
-player2scores-map
-;team2scores-map
-;team2players-map
-
-
-;(define test (second data))
-;(team-or-player? test)
-;(player-score-split test)
-;(map team-or-player? data)
