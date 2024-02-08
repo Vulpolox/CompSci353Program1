@@ -193,10 +193,11 @@
 (define (total-team-score team-name)
   (define player-list (hash-ref team2players-map
                                 team-name))
+  (define no-dupes-player-list (set->list (list->set player-list)))
   (foldr +
          0
          (map get-total-score
-              player-list)))
+              no-dupes-player-list)))
 
 ; pre  -- takes a list of an arbitrary number of bowling team names
 ; post -- returns the name of the team with the highest score
@@ -260,8 +261,9 @@
        (display "Team: ")
        (displayln current-team)
        (displayln "Players on Team:")
-       (display-players (hash-ref team2players-map
-                                  current-team))
+       (display-players (set->list
+                        (list->set (hash-ref team2players-map
+                                             current-team))))
        (display "Team Total: ")
        (displayln (total-team-score current-team))
        (displayln "-===============-")
