@@ -1,8 +1,8 @@
 #lang racket
 
 (require rackunit)
-(require "CalculateScore.rkt") ; provides "calculate-score" function for getting bowling scores
-(require "FileReader.rkt")     ; provides "data" which contains file contents
+(require "CalculateScore.rkt") ; provides function "calculate-score" for getting bowling scores
+(require "FileReader.rkt")     ; provides variable "data" which contains file contents
 
 (define team->player-hash (make-immutable-hash))
 (define player->scores-has (make-hash))
@@ -35,7 +35,7 @@
   (define pure-char-list (map str->char input-list)) ; intermediary list that has strings converted to chars
   (map char->int-if-num pure-char-list))
 
-; pre  -- takes input data
+; pre  -- takes scores.txt data
 ; post -- returns a list of lists where each sublist contains a player,
 ;         their team, and the score from their game
 (define (get-clean-data data [current-team "none"] [superlist '()])
@@ -47,15 +47,46 @@
      (get-clean-data (cdr data) (first data) superlist)]
     [(eq? (team-or-player? (first data))
           "player")
-     (define player-name (first (player-score-split (first data))))
-     (define player-score (calculate-score (type-cast-game (second (player-score-split (first data))))))
+     (define player-name (first (player-score-split (first data))))                                        ; the player's name as a single string
+     (define player-score (calculate-score (type-cast-game (second (player-score-split (first data))))))   ; the player's score from their game
      (define updated-list (cons (list (first current-team) player-name player-score) superlist))
      (get-clean-data (cdr data) current-team updated-list)]
     )
   )
 
+; pre  -- takes output from "get-clean-data" as input
+; post -- returns a hash map which maps a player to a list containing their scores
+(define (player->score# data [out-hash (make-immutable-hash)])
+  (define current-entry (if (empty? data)
+                            "null; base case should be triggered"
+                            (first data)))
+  (define current-key (if (empty? data)
+                          "null; base case should be triggered"
+                          (list(second current-entry))))
+  (cond
+    [(empty? data)
+     out-hash]
+    [(not (hash-has-key? out-hash current-key))
+     (define updated-hash (hash-set
+                           out-hash
+                           current-key
+                           (list (third current-entry))))
+     (player->score# (cdr data) updated-hash)]
+    [else
+     (define updated-value (append
+                            (hash-ref out-hash current-key)
+                            (list (third current-entry))))
+     (define updated-hash (hash-set
+                           out-hash
+                           current-key
+                           updated-value))
+     (player->score# (cdr data) updated-hash)]
+    )
+  )
+
+
 (define clean-data (get-clean-data data))
-clean-data
+(player->score# clean-data)
 
 ;(define test (second data))
 ;(team-or-player? test)
