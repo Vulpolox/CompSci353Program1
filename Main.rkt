@@ -56,13 +56,13 @@
 
 ; pre  -- takes output from "get-clean-data" as input
 ; post -- returns a hash map which maps players to a list of their three scores
-(define (player/team->score# data [out-hash (make-immutable-hash)])
+(define (player->score# data [out-hash (make-immutable-hash)])
   (define current-entry (if (empty? data)
                             "null; base case should be triggered"
                             (first data)))
   (define current-key (if (empty? data)
                           "null; base case should be triggered"
-                          (list (second current-entry))))
+                          (second current-entry)))
   (cond
     [(empty? data)
      out-hash]
@@ -71,7 +71,7 @@
                            out-hash
                            current-key
                            (list (third current-entry))))
-     (player/team->score# (cdr data) updated-hash)]
+     (player->score# (cdr data) updated-hash)]
     [else
      (define updated-value (append
                             (hash-ref out-hash current-key)
@@ -80,7 +80,7 @@
                            out-hash
                            current-key
                            updated-value))
-     (player/team->score# (cdr data) updated-hash)]
+     (player->score# (cdr data) updated-hash)]
     )
   )
 
@@ -92,7 +92,7 @@
                             (first data)))
   (define current-key (if (empty? data)
                           "null; base case should be triggered"
-                          (list (first current-entry))))
+                          (first current-entry)))
   (cond
     [(empty? data)
      out-hash]
@@ -114,12 +114,45 @@
     )
   )
 
-(define clean-data (get-clean-data data))
-(define player/team->scores-map (player/team->score# clean-data))
-(define team->scores-map (team->score# clean-data))
+; pre  -- takes the output of "get-clean-data" as input
+; post -- returns a hash-map which maps team names to players
+(define (team->player# data [out-hash (make-immutable-hash)])
+  (define current-entry (if (empty? data)
+                            "null; base case should be triggered"
+                            (first data)))
+  (define current-key (if (empty? data)
+                          "null; base case should be triggered"
+                          (first current-entry)))
+  (cond
+    [(empty? data)
+     out-hash]
+    [(not (hash-has-key? out-hash current-key))
+     (define updated-hash (hash-set
+                           out-hash
+                           current-key
+                           (list (second current-entry))))
+     (team->player# (cdr data) updated-hash)]
+    [else
+     (define updated-value (append
+                            (hash-ref out-hash current-key)
+                            (list (second current-entry))))
+     (define updated-hash (hash-set
+                           out-hash
+                           current-key
+                           updated-value))
+     (team->player# (cdr data) updated-hash)]
+    )
+  )
+    
 
-player/team->scores-map
-team->scores-map
+(define clean-data (get-clean-data data))
+(define player2scores-map (player->score# clean-data))
+(define team2scores-map (team->score# clean-data))
+(define team2players-map (team->player# clean-data))
+
+player2scores-map
+;team2scores-map
+;team2players-map
 
 
 ;(define test (second data))
