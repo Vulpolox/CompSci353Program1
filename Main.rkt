@@ -272,5 +272,3 @@
     )
 
   (display-teams team-names)
-     
-    
