@@ -2,8 +2,8 @@
 (require rackunit)
 (provide calculate-score)
 
-; pre  -- takes a list of integers and #\X and #\/ chars representing a bowling game
-; post -- returns the score from said bowling game as an integer
+; function for calculating the score of a bowling game
+; score-list is a list of tokens containing integers and chars "X" and "/"
 (define (calculate-score score-list)
   (cond
     [(string=? (get-frame-type score-list) "spare")          ; if the frame at the front of the list is a spare
@@ -24,8 +24,8 @@
     )
   )
 
-; pre  -- takes a list of integers and #\X and #\/ chars representing a bowling game
-; post -- returns true if the elements at the front represent the final frame
+; function for determining if it is the 10th frame
+; returns true if the frame at the beginning of score-list is the last one
 (define (final-frame? score-list)
   (cond
     [(and (string=? (get-frame-type score-list) "strike")
@@ -42,8 +42,7 @@
   )
     
 
-; pre  -- takes two parameters of arbitrary type
-; post -- returns true only if both parameters are of type char and are equal
+; function for determining if something is both a char and is equal to another char
 (define (is-char-equal a b)
   (if (not (and (char? a) (char? b))) ; if one or both are not characters
       #f                              ; then return false
@@ -51,8 +50,7 @@
       )
   )
 
-; pre  -- takes a list and an integer, n
-; post -- removes n items from the front of the list; if the list has less than n elements, it returns an empty list
+; function for removing n elements from front of list; if list has less than n elements return empty list
 (define (pop-front my-list n)
   (if (< (length my-list) n) ; if there are less than n elements in list
       empty                  ; return an empty list
@@ -60,8 +58,7 @@
       )
   )
 
-; pre  -- takes a list of integers and #\X and #\/ chars representing a bowling game
-; post -- returns a string representation of the frame depending on the front elements in the list
+; function for determining frame type (spare, strike, open frame)
 (define (get-frame-type score-list)
   (cond
     [(is-char-equal (first score-list) #\X)        ; frame at the front of the list is strike
@@ -77,8 +74,7 @@
   )
   )
 
-; pre  -- takes a list of integers and #\X and #\/ chars representing a bowling game
-; post -- calculates score from spares
+; function for calculating spare
 (define (calculate-spare score-list)
   (cond
     [(is-char-equal (third score-list) #\X)                        ; next roll is a strike
@@ -88,8 +84,7 @@
   )
   )
 
-; pre  -- takes a list of integers and #\X and #\/ chars representing a bowling game
-; post -- calculates score from strikes
+; function for calculating strike
 (define (calculate-strike score-list)
   (cond
     [(and (is-char-equal (second score-list) #\X)                                ; player's next two rolls are strikes
@@ -108,8 +103,7 @@
   )
   )
 
-; pre  -- takes a list of integers and #\X and #\/ chars representing a bowling game
-; post -- calculates score from open frames
+; function for calculating open frame
 (define (calculate-open score-list)
   (+ (first score-list)
      (second score-list)))
