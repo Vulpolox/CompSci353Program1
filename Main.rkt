@@ -229,9 +229,46 @@
   )
 ;------------------OUTPUT-------------------------------------------------------------------------------------------------------
 
-player-names
-(apply max(map get-total-score player-names))
-(get-highest-scorer player-names)
-(get-total-score (first (get-highest-scorer player-names)))
-         
-  
+; function for displaying results to console
+(define (display-teams teams-list)
+  (define (display-players players-list)
+    (cond
+      [(empty? players-list)
+       "---"]
+      [else
+       (define current-player (first players-list))
+       (begin
+         (display current-player)
+         (display " || Scores: ")
+         (display (get-scores current-player))
+         (display " || Total: ")
+         (displayln (get-total-score current-player))
+         (displayln "-")
+         (display-players (cdr players-list)))]
+      )
+    )
+  (cond
+    [(empty? teams-list)
+     (begin
+       (display "Winning Team: ")
+       (displayln (get-winning-team team-names))
+       (display "Highest Scoring Player(s): ")
+       (display (get-highest-scorer player-names)))]
+    [else
+     (define current-team (first teams-list))
+     (begin
+       (display "Team: ")
+       (displayln current-team)
+       (displayln "Players on Team:")
+       (display-players (hash-ref team2players-map
+                                  current-team))
+       (display "Team Total: ")
+       (displayln (total-team-score current-team))
+       (displayln "-===============-")
+       (display-teams (cdr teams-list)))]
+    )
+    )
+
+  (display-teams team-names)
+     
+    
